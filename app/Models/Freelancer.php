@@ -15,6 +15,11 @@ class Freelancer extends Model
         return $this->hasMany(Proposal::class);
     }
 
+    public function projects()
+    {
+        return $this->belongsToMany(Project::class, 'proposals');
+    }
+
     // Se necessário, defina a tabela explicitamente
     protected $table = 'freelancers';
 

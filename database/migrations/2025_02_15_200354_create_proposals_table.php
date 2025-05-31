@@ -7,21 +7,18 @@ use Illuminate\Support\Facades\Schema;
 class CreateProposalsTable extends Migration
 {
     public function up(): void
-{
-    Schema::create('proposals', function (Blueprint $table) {
+    {
+        Schema::create('proposals', function (Blueprint $table) {
         $table->id();
-        $table->unsignedBigInteger('project_id');
-        $table->unsignedBigInteger('freelancer_id');
-        $table->decimal('price', 10, 2);
-        $table->integer('deadline'); // em dias
+        $table->foreignId('project_id')->constrained();
+        $table->foreignId('freelancer_id')->constrained('users');
         $table->text('message');
-        $table->enum('status', ['pendente', 'aceita', 'rejeitada'])->default('pendente');
+        $table->decimal('budget', 10, 2);
+        $table->dateTime('deadline');
+        $table->string('status')->default('pending');
         $table->timestamps();
-
-        $table->foreign('project_id')->references('id')->on('projects')->onDelete('cascade');
-        $table->foreign('freelancer_id')->references('id')->on('freelancers')->onDelete('cascade');
-    });
-}
+        });
+    }
 
 
     public function down()

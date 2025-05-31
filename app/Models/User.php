@@ -68,8 +68,7 @@ class User extends Authenticatable
     }
     public function proposals()
     {
-        // Definindo relação de um freelancer com muitas propostas
-        return $this->hasMany(\App\Models\Proposal::class);
+        return $this->hasMany(Proposal::class, 'freelancer_id');
     }
     
     public function client()

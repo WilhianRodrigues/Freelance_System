@@ -4,30 +4,60 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Proposal extends Model
 {
     use HasFactory;
 
+    /**
+     * @var array
+     */
     protected $fillable = [
-        'user_id',
         'project_id',
+        'freelancer_id',
         'message',
-        'price',
+        'budget',
         'deadline',
-        'status',
+        'status'
     ];
 
-    // Relação com o projeto (cada proposta pertence a um projeto)
-    public function project()
+    /**
+     * @var array
+     */
+    protected $casts = [
+        'deadline' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
+   
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_ACCEPTED = 'accepted';
+    public const STATUS_REJECTED = 'rejected';
+    public const STATUS_COMPLETED = 'completed';
+
+    
+    public function project(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\Project::class);
+        return $this->belongsTo(Project::class);
     }
 
-
-    // Relação com o usuário (freelancer que enviou a proposta)
-    public function user()
+    
+    public function freelancer(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'freelancer_id');
+    }
+
+    
+    public function scopePending($query)
+    {
+        return $query->where('status', self::STATUS_PENDING);
+    }
+
+    
+    public function isPending(): bool
+    {
+        return $this->status === self::STATUS_PENDING;
     }
 }

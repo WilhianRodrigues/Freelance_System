@@ -10,63 +10,90 @@ class ProjectController extends Controller
 {
     public function index()
     {
-        $projetos = Project::where('client_id', Auth::id())->get();
-        return view('cliente.projetos.index', compact('projetos'));
+        $projects = Project::withCount('proposals')
+                    ->where('client_id', Auth::id())
+                    ->latest()
+                    ->get();
+                    
+        return view('cliente.projects.index', compact('projects'));
     }
 
     public function create()
     {
-        return view('cliente.projetos.create');
+        return view('cliente.projects.create');
     }
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'deadline' => 'required|date',
-            'budget' => 'required|decimal(10,2)',
+            'deadline' => 'required|date|after_or_equal:today',
+            'budget' => 'required|numeric|min:0',
         ]);
 
         Project::create([
             'client_id' => Auth::id(),
-            'title' => $request->titulo,
-            'description' => $request->descricao,
-            'deadline' => $request->prazo,
-            'budget' => $request->orcamento,
-            'status' => 'aberto'
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'deadline' => $validated['deadline'],
+            'budget' => $validated['budget'],
+            'status' => 'open'
         ]);
 
-        return redirect()->route('cliente.projetos.index')->with('success', 'Projeto criado com sucesso!');
+        return redirect()->route('cliente.projects.index')
+               ->with('success', 'Projeto criado com sucesso!');
     }
 
-    public function edit($id)
+    public function show(Project $project)
     {
-        $projeto = Project::where('id', $id)->where('client_id', Auth::id())->firstOrFail();
-        return view('cliente.projetos.edit', compact('projeto'));
+        
+        if (Auth::id() !== $project->client_id) {
+            abort(403, 'Acesso não autorizado.');
+        }
+    
+    return view('cliente.projects.show', compact('project'));
     }
 
-    public function update(Request $request, $id)
+    public function edit(Project $project)
     {
-        $request->validate([
-            'title ' => 'required|string|max:255',
+        if (Auth::id() !== $project->client_id) {
+            abort(403, 'This action is unauthorized.');
+        }
+        
+        return view('cliente.projects.edit', compact('project'));
+    }
+
+    public function update(Request $request, Project $project)
+    {
+        // Verifica se o usuário é o dono do projeto
+        if (Auth::id() !== $project->client_id) {
+            abort(403, 'Acesso não autorizado.');
+        }
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
             'description' => 'required|string',
             'deadline' => 'required|date',
-            'budget' => 'required|decimal(10,2)',
+            'budget' => 'required|numeric|min:0',
         ]);
 
-        $projeto = Project::where('id', $id)->where('client_id', Auth::id())->firstOrFail();
-        $projeto->update($request->only(['title', 'description', 'deadline', 'budget']));
+        $project->update($validated);
 
-        return redirect()->route('cliente.projetos.index')->with('success', 'Projeto atualizado com sucesso!');
+        return redirect()->route('cliente.projects.index')
+               ->with('success', 'Projeto atualizado com sucesso!');
     }
 
-    public function destroy($id)
+    public function destroy(Project $project)
     {
-        $projeto = Project::where('id', $id)->where('client_id', Auth::id())->firstOrFail();
-        $projeto->delete();
+        
+        if (Auth::id() !== $project->client_id) {
+            abort(403, 'Acesso não autorizado.');
+        }
 
-        return redirect()->route('cliente.projetos.index')->with('success', 'Projeto deletado com sucesso!');
+        $project->delete();
+
+        return redirect()->route('cliente.projects.index')
+           ->with('success', 'Projeto excluído com sucesso!');
     }
 }
-

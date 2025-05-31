@@ -13,14 +13,13 @@ return new class extends Migration
     {
         Schema::create('projects', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('client_id');
+            $table->foreignId('client_id')->constrained('users');
             $table->string('title');
             $table->text('description');
+            $table->date('deadline');
             $table->decimal('budget', 10, 2);
-            $table->enum('status', ['open', 'in_progress', 'completed'])->default('open');
+            $table->string('status')->default('aberto');
             $table->timestamps();
-        
-            $table->foreign('client_id')->references('id')->on('users')->onDelete('cascade');
         });
         
     }

@@ -8,18 +8,18 @@ use App\Models\Freelancer;
 use App\Models\Proposal;
 use Illuminate\Support\Facades\Auth;
 
-class FreelancerProjetoController extends Controller
+class FreelancerProjectController extends Controller
 {
     public function index()
     {
         $projetos = Project::where('status', 'open')->get();
-        return view('freelancer.projetos.index', compact('projetos'));
+        return view('freelancer.projects.index', compact('projetos'));
     }
 
     public function show($id)
     {
         $projeto = Project::findOrFail($id);
-        return view('freelancer.projetos.show', compact('projeto'));
+        return view('freelancer.projects.show', compact('projeto'));
     }
 
     public function enviarProposta(Request $request, $id)
@@ -40,6 +40,6 @@ class FreelancerProjetoController extends Controller
             'message' => $request->message,
         ]);
 
-        return redirect()->route('freelancer.projetos.index')->with('success', 'Proposta enviada com sucesso!');
+        return redirect()->route('freelancer.projects.index')->with('success', 'Proposta enviada com sucesso!');
     }
 }
