@@ -81,6 +81,24 @@ class User extends Authenticatable
         return $this->hasOne(Freelancer::class);
     }
 
-    
+    public function projects() // Se for cliente
+    {
+        return $this->hasMany(Project::class, 'client_id');
+    }
+
+    public function ratingsGiven()
+    {
+        return $this->hasMany(Rating::class, 'rater_id');
+    }
+
+    public function ratingsReceived()
+    {
+        return $this->hasMany(Rating::class, 'rated_id');
+    }
+
+    public function averageRating()
+    {
+        return $this->ratingsReceived()->avg('score');
+    }
 
 }

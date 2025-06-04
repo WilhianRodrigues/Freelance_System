@@ -16,6 +16,8 @@ return new class extends Migration
             $table->id(); // Chave primária (id_cliente)
             $table->unsignedBigInteger('user_id'); // Relacionamento com a tabela users
             $table->timestamps();
+            $table->string('company_name')->nullable(); // Nome da empresa
+            $table->string('phone')->nullable(); // Telefone de contato
             // Chave estrangeira para usuários
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 

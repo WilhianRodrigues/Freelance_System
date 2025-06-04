@@ -24,9 +24,15 @@ class Freelancer extends Model
     protected $table = 'freelancers';
 
     // Defina os campos que podem ser preenchidos (mass assignment)
-    protected $fillable = ['user_id',
-        'name', 'email', 'password', 'skills', 'experience', 
-        // outros campos que você precisar
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'role',
+        'skills',
+        'bio',
+        'hourly_rate',
+        'portfolio_url'
     ];
 
     // Se a tabela tiver timestamps

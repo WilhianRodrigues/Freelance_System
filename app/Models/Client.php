@@ -20,7 +20,11 @@ class Client extends Model
 
     // Defina os campos que podem ser preenchidos (mass assignment)
     protected $fillable = ['user_id',
-        'name', 'email', 'password',
+        'name',
+        'email',
+        'password',
+        'company_name',
+        'phone',
         // outros campos que você precisar
     ];
 

@@ -44,6 +44,17 @@ class FreelancerController extends Controller
             ->take(5)
             ->get();
 
+        $user = Auth::user();
+        $user->loadCount([
+            'proposals as active_proposals_count' => function($query) {
+                $query->where('status', 'active');
+            }
+        ]);
+        
+        return view('freelancer.dashboard', [
+            'activeProposalsCount' => $user->active_proposals_count,
+        ]);
+
         return view('freelancer.dashboard', compact(
             'projectsInProgress',
             'completedProjects',
@@ -73,18 +84,45 @@ class FreelancerController extends Controller
      */
     public function showProject(Project $project)
     {
+         // Verifica se o freelancer tem proposta aceita para este projeto
+        if (
+            !$project->acceptedProposal ||
+            $project->acceptedProposal->freelancer_id != Auth::user()->freelancer->id
+        ) {
+            abort(403, 'Acesso não autorizado');
+        }
+
+            return view('freelancer.projects.show', [
+                'project' => $project,
+                'proposal' => $project->acceptedProposal
+        ]);
         return view('freelancer.projects.show', compact('project'));
     }
+
+    public function showMessages(Project $project)
+        {
+            if (
+                !$project->acceptedProposal ||
+                $project->acceptedProposal->freelancer_id != Auth::user()->freelancer->id
+            ) {
+                abort(403, 'Acesso não autorizado');
+            }
+
+            return view('freelancer.projects.messages', [
+                'project' => $project,
+                'messages' => $project->messages()->latest()->get()
+            ]);
+        }
 
     /**
      * Mostrar formulário de edição de perfil
      */
     public function editProfile()
     {
-        $freelancer = Auth::user()->freelancer;
+        $user = Auth::user(); // Obter o usuário autenticado
+    
         return view('freelancer.profile.edit', [
-            'freelancer' => $freelancer,
-            'skills' => json_decode($freelancer->skills, true) ?? []
+            'user' => $user // Passar o usuário para a view
         ]);
     }
 
@@ -93,26 +131,21 @@ class FreelancerController extends Controller
      */
     public function updateProfile(Request $request)
     {
+        $user = Auth::user();
+        
         $validated = $request->validate([
-            'profession' => 'required|string|max:255',
-            'bio' => 'nullable|string',
-            'skills' => 'required|array',
-            'skills.*' => 'string|max:255',
-            'portfolio_url' => 'nullable|url',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,'.$user->id,
+            'skills' => 'nullable|string|max:255',
+            'bio' => 'nullable|string|max:1000',
             'hourly_rate' => 'nullable|numeric|min:0',
+            'portfolio_url' => 'nullable|url|max:255'
         ]);
 
-        $freelancer = Auth::user()->freelancer;
-        $freelancer->update([
-            'profession' => $validated['profession'],
-            'bio' => $validated['bio'],
-            'skills' => json_encode($validated['skills']),
-            'portfolio_url' => $validated['portfolio_url'],
-            'hourly_rate' => $validated['hourly_rate'],
-        ]);
+        $user->update($validated);
         
-        return redirect()->route('freelancer.dashboard')
-               ->with('success', 'Perfil atualizado com sucesso!');
+        return redirect()->route('freelancer.profile.edit')
+            ->with('success', 'Perfil atualizado com sucesso!');
     }
 
     public function proposals()
@@ -162,4 +195,6 @@ class FreelancerController extends Controller
         return redirect()->route('freelancer.projects.index')
                ->with('success', 'Proposta enviada com sucesso!');
     }
+
+    
 }

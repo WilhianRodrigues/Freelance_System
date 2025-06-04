@@ -1,16 +1,16 @@
 @extends('layouts.app')
 
-@section('title', 'Editar Perfil - Freelancer')
+@section('title', 'Editar Perfil - Cliente')
 
 @section('content')
     <div class="container px-4 py-8 mx-auto">
         <h1 class="mb-6 text-2xl font-bold">Editar Perfil</h1>
 
-        <form method="POST" action="{{ route('freelancer.profile.update') }}">
+        <form method="POST" action="{{ route('cliente.profile.update') }}">
             @csrf
             @method('PUT')
 
-            <div class="grid grid-cols-1 gap-6">
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <!-- Campos comuns -->
                 <div class="mb-4">
                     <label class="block mb-2 text-gray-700" for="name">Nome</label>
@@ -24,24 +24,20 @@
                         class="w-full px-4 py-2 border rounded-lg">
                 </div>
 
-                <!-- Campos específicos do freelancer -->
+                <!-- Campos específicos do cliente -->
                 <div class="mb-4">
-                    <label class="block mb-2 text-gray-700" for="skills">Habilidades</label>
-                    <input type="text" name="skills" id="skills" value="{{ old('skills', $user->skills) }}"
-                        class="w-full px-4 py-2 border rounded-lg" placeholder="Ex: PHP, Laravel, JavaScript">
+                    <label class="block mb-2 text-gray-700" for="company_name">Empresa</label>
+                    <input type="text" name="company_name" id="company_name"
+                        value="{{ old('company_name', $user->company_name) }}" class="w-full px-4 py-2 border rounded-lg">
                 </div>
 
                 <div class="mb-4">
-                    <label class="block mb-2 text-gray-700" for="bio">Bio</label>
-                    <textarea name="bio" id="bio" rows="4" class="w-full px-4 py-2 border rounded-lg">{{ old('bio', $user->bio) }}</textarea>
-                </div>
-
-                <div class="mb-4">
-                    <label class="block mb-2 text-gray-700" for="hourly_rate">Valor por hora (R$)</label>
-                    <input type="number" step="0.01" name="hourly_rate" id="hourly_rate"
-                        value="{{ old('hourly_rate', $user->hourly_rate) }}" class="w-full px-4 py-2 border rounded-lg">
+                    <label class="block mb-2 text-gray-700" for="phone">Telefone</label>
+                    <input type="text" name="phone" id="phone" value="{{ old('phone', $user->phone) }}"
+                        class="w-full px-4 py-2 border rounded-lg">
                 </div>
             </div>
+
             <div class="mt-8">
                 <h2 class="mb-4 text-xl font-semibold">Avaliações</h2>
 
@@ -55,6 +51,7 @@
                     </div>
                 @endif
             </div>
+
             <div class="mt-6">
                 <button type="submit" class="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700">
                     Atualizar Perfil

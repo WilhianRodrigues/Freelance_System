@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Project;
 use App\Models\Proposal;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Controller;
 
 class ClienteController extends Controller
 {
@@ -40,5 +41,30 @@ class ClienteController extends Controller
             ->get();
 
         return view('cliente.proposals.index', compact('propostas'));
+    }
+
+    public function editProfile()
+    {
+        return view('cliente.profile.edit', [
+            'user' => \Illuminate\Support\Facades\Auth::user()
+        ]);
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,'.$user->id,
+            'password' => 'nullable|string|min:8|confirmed',
+            'company_name' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:20',
+        ]);
+        
+        $user->update($validated);
+        
+        return redirect()->route('cliente.dashboard')
+            ->with('success', 'Perfil atualizado com sucesso!');
     }
 }

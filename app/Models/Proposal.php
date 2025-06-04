@@ -60,4 +60,15 @@ class Proposal extends Model
     {
         return $this->status === self::STATUS_PENDING;
     }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($proposal) {
+            if (!User::where('id', $proposal->freelancer_id)->exists()) {
+                throw new \Exception("Freelancer inválido");
+            }
+        });
+    }
 }

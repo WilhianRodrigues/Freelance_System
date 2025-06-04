@@ -8,22 +8,25 @@ use Illuminate\Support\Facades\Auth;
 
 class ClienteMiddleware
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @return mixed
-     */
-    public function handle(Request $request, Closure $next)
+    public function handle($request, Closure $next)
     {
-        // Check if the authenticated user is a cliente
-        if (Auth::check() && Auth::user()->role === 'cliente') {
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        $user = Auth::user();
+        
+        // Verifique o campo que armazena o tipo de usuário
+        if ($user->role === 'cliente') {
             return $next($request);
         }
 
-        abort(403, 'Acesso não autorizado.');
-    }
-    
-}
+        // Debug adicional
+        logger()->error('Tentativa de acesso de não-cliente', [
+            'user_id' => $user->id,
+            'user_type' => $user->role
+        ]);
 
+        abort(403, 'Acesso permitido apenas para clientes');
+    }
+}

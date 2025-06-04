@@ -7,8 +7,10 @@ use App\Http\Controllers\{
     FreelancerController,
     ProjectController,
     ProposalController,
-    FreelancerProfileController
+    FreelancerProfileController,
+    ProjectMessageController
 };
+use App\Http\Controllers\RatingController;
 use App\Http\Middleware\FreelancerMiddleware;
 use App\Http\Middleware\ClienteMiddleware;
 
@@ -32,9 +34,18 @@ Route::middleware(['auth'])->group(function () {
     /**
      * ROTAS CLIENTE
      */
-    Route::prefix('cliente')->middleware(ClienteMiddleware::class)->group(function () {
+    Route::middleware(['auth', ClienteMiddleware::class])->group(function () {
+
+        // Rotas de avaliação para cliente
+        Route::get('/projects/{project}/rate-freelancer', [RatingController::class, 'createFreelancerRating'])
+            ->name('cliente.ratings.create_freelancer');
+        Route::post('/projects/{project}/rate-freelancer', [RatingController::class, 'storeFreelancerRating'])
+            ->name('cliente.ratings.store_freelancer');
+        Route::get('/profile/edit', [ClienteController::class, 'editProfile'])->name('cliente.profile.edit');
+        Route::put('/profile/update', [ClienteController::class, 'updateProfile'])->name('cliente.profile.update');
+
         // Projetos do cliente (resource)
-        Route::resource('projects', ProjectController::class)
+        Route::resource('cliente/projects', ProjectController::class)
             ->names([
                 'index' => 'cliente.projects.index',
                 'create' => 'cliente.projects.create',
@@ -46,12 +57,15 @@ Route::middleware(['auth'])->group(function () {
             ]);
 
         // Propostas
-        Route::prefix('proposals')->group(function () {
-            Route::put('/{proposal}/accept', [ProposalController::class, 'accept'])->name('cliente.proposals.accept');
-            Route::put('/{proposal}/reject', [ProposalController::class, 'reject'])->name('cliente.proposals.reject');
-            Route::get('/cliente/propostas', [ClienteController::class, 'indexProposals'])
-                ->name('cliente.proposals.index')
-                ->middleware('auth');
+        Route::prefix('cliente')->group(function () {
+            Route::get('/proposals', [ProposalController::class, 'indexForClient'])
+                ->name('cliente.proposals.index');
+            Route::get('/proposals/{proposal}', [ProposalController::class, 'showForClient'])
+                ->name('cliente.proposals.show');
+            Route::put('/proposals/{proposal}/accept', [ProposalController::class, 'accept'])
+                ->name('cliente.proposals.accept');
+            Route::put('/proposals/{proposal}/reject', [ProposalController::class, 'reject'])
+                ->name('cliente.proposals.reject');
         });
     });
 
@@ -59,12 +73,23 @@ Route::middleware(['auth'])->group(function () {
      * ROTAS FREELANCER
      */
     Route::prefix('freelancer')->middleware(FreelancerMiddleware::class)->group(function() {
+
+        // Rotas de avaliação para freelancer
+        Route::get('/projects/{project}/rate-client', [RatingController::class, 'createClientRating'])
+            ->name('freelancer.ratings.create_client');
+        Route::post('/projects/{project}/rate-client', [RatingController::class, 'storeClientRating'])
+            ->name('freelancer.ratings.store_client');
+
         // Dashboard
         Route::get('/dashboard', [FreelancerController::class, 'index'])->name('freelancer.dashboard');
         
         // Projetos disponíveis
         Route::get('/projects', [FreelancerController::class, 'projects'])->name('freelancer.projects.index');
         Route::get('/projects/{project}', [FreelancerController::class, 'showProject'])->name('freelancer.projects.show');
+        Route::get('/projects/{project}/messages', [FreelancerController::class, 'showMessages'])
+            ->name('freelancer.projects.messages');
+        Route::post('/projects/{project}/messages', [ProjectMessageController::class, 'store'])
+            ->name('projects.messages.store');
         
         // Propostas
         Route::prefix('projects/{project}')->group(function() {
@@ -79,12 +104,25 @@ Route::middleware(['auth'])->group(function () {
                 'index' => 'freelancer.proposals.index',
                 'show' => 'freelancer.proposals.show',
                 'destroy' => 'freelancer.proposals.destroy'
-        ]);
+            ]);
+            
         // Perfil
-        Route::prefix('profile')->group(function () {
-            Route::get('/', [FreelancerProfileController::class, 'show'])->name('freelancer.profile.show');
-            Route::get('/edit', [FreelancerProfileController::class, 'edit'])->name('freelancer.profile.edit');
-            Route::put('/', [FreelancerProfileController::class, 'update'])->name('freelancer.profile.update');
-        });
+        Route::get('/profile/edit', [FreelancerController::class, 'editProfile'])->name('freelancer.profile.edit');
+        Route::put('/profile/update', [FreelancerController::class, 'updateProfile'])->name('freelancer.profile.update');
+
+        //Route::prefix('profile')->group(function () {
+            //Route::get('/', [FreelancerProfileController::class, 'show'])->name('freelancer.profile.show');
+           // Route::get('/edit', [FreelancerProfileController::class, 'edit'])->name('freelancer.profile.edit');
+            //Route::put('/', [FreelancerProfileController::class, 'update'])->name('freelancer.profile.update');
+       // });
     });
+    Route::get('/check-user-type', function() {
+        $user = \Illuminate\Support\Facades\Auth::user();
+        return response()->json([
+            'id' => $user->id,
+            'name' => $user->name,
+            'role' => $user->role,
+            'is_client' => $user->role === 'cliente'
+        ]);
+    })->middleware('auth');
 });

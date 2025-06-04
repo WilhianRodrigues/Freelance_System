@@ -23,7 +23,9 @@
                     </div>
                     <div class="ml-4">
                         <h3 class="text-lg font-medium text-gray-900">Propostas Ativas</h3>
-                        <p class="mt-1 text-2xl font-semibold text-gray-900">{{ $activeProposalsCount ?? 0 }}</p>
+                        <p class="mt-1 text-2xl font-semibold text-gray-900">
+                            {{ $activeProposalsCount ?? auth()->user()->proposals()->where('status', 'active')->count() }}
+                        </p>
                     </div>
                 </div>
                 <div class="mt-4">
@@ -56,29 +58,75 @@
                 </div>
             </div>
 
-            <!-- Card Ações Rápidas -->
+            <!-- Card Meu Perfil -->
             <div class="p-6 bg-white rounded-lg shadow">
-                <h3 class="text-lg font-medium text-gray-900">Ações Rápidas</h3>
-                <div class="mt-4 space-y-3">
-                    <a href="{{ route('freelancer.projects.index') }}"
-                        class="flex items-center p-3 text-sm font-medium text-indigo-600 rounded-md hover:bg-indigo-50">
-                        <svg class="flex-shrink-0 w-5 h-5 mr-3 text-indigo-500" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                        Buscar Novos Projetos
-                    </a>
-                    <a href="{{ route('freelancer.proposals.index') }}"
-                        class="flex items-center p-3 text-sm font-medium text-indigo-600 rounded-md hover:bg-indigo-50">
-                        <svg class="flex-shrink-0 w-5 h-5 mr-3 text-indigo-500" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-medium text-gray-900">Meu Perfil</h3>
+                    <a href="{{ route('freelancer.profile.edit') }}"
+                        class="inline-flex items-center px-3 py-1 text-sm font-medium text-indigo-700 bg-indigo-100 rounded-md hover:bg-indigo-200">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
-                        Gerenciar Propostas
+                        Editar
                     </a>
                 </div>
+                <div class="mt-4 space-y-2">
+                    @if (auth()->user()->skills)
+                        <p class="text-sm text-gray-600">
+                            <span class="font-medium">Habilidades:</span> {{ auth()->user()->skills }}
+                        </p>
+                    @endif
+                    @if (auth()->user()->hourly_rate)
+                        <p class="text-sm text-gray-600">
+                            <span class="font-medium">Valor/hora:</span> R$
+                            {{ number_format(auth()->user()->hourly_rate, 2, ',', '.') }}
+                        </p>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <!-- Card Ações Rápidas -->
+        <div class="p-6 mt-6 bg-white rounded-lg shadow">
+            <h3 class="text-lg font-medium text-gray-900">Ações Rápidas</h3>
+            <div class="grid grid-cols-1 gap-3 mt-4 sm:grid-cols-2">
+                <a href="{{ route('freelancer.projects.index') }}"
+                    class="flex items-center p-3 text-sm font-medium text-indigo-600 rounded-md hover:bg-indigo-50">
+                    <svg class="flex-shrink-0 w-5 h-5 mr-3 text-indigo-500" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    Buscar Novos Projetos
+                </a>
+                <a href="{{ route('freelancer.proposals.index') }}"
+                    class="flex items-center p-3 text-sm font-medium text-indigo-600 rounded-md hover:bg-indigo-50">
+                    <svg class="flex-shrink-0 w-5 h-5 mr-3 text-indigo-500" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Gerenciar Propostas
+                </a>
+                <a href="{{ route('freelancer.profile.edit') }}"
+                    class="flex items-center p-3 text-sm font-medium text-indigo-600 rounded-md hover:bg-indigo-50">
+                    <svg class="flex-shrink-0 w-5 h-5 mr-3 text-indigo-500" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    Editar Perfil Completo
+                </a>
+                <!--<a href="{{-- {{ route('freelancer.projects.create') }} --}}"
+                                class="flex items-center p-3 text-sm font-medium text-indigo-600 rounded-md hover:bg-indigo-50">
+                                <svg class="flex-shrink-0 w-5 h-5 mr-3 text-indigo-500" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                </svg>
+                                Criar Novo Projeto
+                            </a>-->
             </div>
         </div>
 
@@ -92,9 +140,12 @@
                             <tr>
                                 <th scope="col"
                                     class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Projeto</th>
-                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Valor</th>
-                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Prazo</th>
-                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Valor
+                                </th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Prazo
+                                </th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status
+                                </th>
                                 <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
                                     <span class="sr-only">Ações</span>
                                 </th>
@@ -107,7 +158,7 @@
                                         {{ $proposal->project->title }}
                                     </td>
                                     <td class="px-3 py-4 text-sm text-gray-500">
-                                        R$ {{ number_format($proposal->value, 2, ',', '.') }}
+                                        R$ {{ number_format($proposal->budget, 2, ',', '.') }}
                                     </td>
                                     <td class="px-3 py-4 text-sm text-gray-500">
                                         {{ $proposal->deadline->format('d/m/Y') }}

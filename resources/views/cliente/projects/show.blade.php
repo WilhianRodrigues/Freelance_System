@@ -10,10 +10,12 @@
                 <p class="mt-2 text-sm text-gray-700">Informações completas sobre o projeto e propostas recebidas.</p>
             </div>
             <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-                <a href="{{ route('cliente.projects.edit', $project->id) }}"
-                    class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    Editar Projeto
-                </a>
+                @if ($project->status !== 'completed')
+                    <a href="{{ route('cliente.projects.edit', $project->id) }}"
+                        class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Editar Projeto
+                    </a>
+                @endif
             </div>
         </div>
 
@@ -44,11 +46,40 @@
                             <dt class="text-sm font-medium text-gray-500">Status</dt>
                             <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                                 <span
-                                    class="inline-flex px-2 text-xs font-semibold leading-5 rounded-full {{ $project->status === 'open' ? 'text-green-800 bg-green-100' : 'text-gray-800 bg-gray-100' }}">
-                                    {{ $project->status === 'open' ? 'Aberto' : 'Fechado' }}
+                                    class="inline-flex px-2 text-xs font-semibold leading-5 rounded-full {{ $project->status === 'open' ? 'text-green-800 bg-green-100' : ($project->status === 'completed' ? 'text-blue-800 bg-blue-100' : 'text-gray-800 bg-gray-100') }}">
+                                    @if ($project->status === 'open')
+                                        Aberto
+                                    @elseif($project->status === 'completed')
+                                        Concluído
+                                    @else
+                                        Fechado
+                                    @endif
                                 </span>
                             </dd>
                         </div>
+                        @if ($project->status === 'completed' && $project->acceptedProposal)
+                            <div class="px-4 py-5 bg-gray-50 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium text-gray-500">Freelancer Contratado</dt>
+                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                    {{ $project->acceptedProposal->freelancer->name }}
+                                    @if (!$project->clientHasRatedFreelancer())
+                                        <div class="mt-2">
+                                            <a href="{{ route('cliente.ratings.create_freelancer', $project) }}"
+                                                class="inline-flex items-center px-3 py-1 text-sm text-white bg-yellow-600 rounded-md hover:bg-yellow-700">
+                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                                                </svg>
+                                                Avaliar Freelancer
+                                            </a>
+                                        </div>
+                                    @else
+                                        <span class="ml-2 text-green-600">Você já avaliou este freelancer</span>
+                                    @endif
+                                </dd>
+                            </div>
+                        @endif
                     </dl>
                 </div>
             </div>
@@ -81,23 +112,30 @@
                                     <tr>
                                         <td
                                             class="py-4 pl-4 pr-3 text-sm font-medium text-gray-900 whitespace-nowrap sm:pl-6">
-                                            {{ $proposal->freelancer->user->name }}
+                                            {{ $proposal->freelancer->name }}
                                         </td>
                                         <td class="px-3 py-4 text-sm text-gray-500">
-                                            R$ {{ number_format($proposal->value, 2, ',', '.') }}
+                                            R$ {{ number_format($proposal->budget, 2, ',', '.') }}
                                         </td>
                                         <td class="px-3 py-4 text-sm text-gray-500">
                                             {{ $proposal->deadline->format('d/m/Y') }}
                                         </td>
                                         <td class="px-3 py-4 text-sm text-gray-500">
                                             <span
-                                                class="inline-flex px-2 text-xs font-semibold leading-5 rounded-full {{ $proposal->status === 'active' ? 'text-green-800 bg-green-100' : 'text-gray-800 bg-gray-100' }}">
-                                                {{ $proposal->status === 'active' ? 'Ativa' : 'Inativa' }}
+                                                class="inline-flex px-2 text-xs font-semibold leading-5 rounded-full {{ $proposal->status === 'accepted' ? 'text-green-800 bg-green-100' : ($proposal->status === 'rejected' ? 'text-red-800 bg-red-100' : 'text-gray-800 bg-gray-100') }}">
+                                                @if ($proposal->status === 'accepted')
+                                                    Aceita
+                                                @elseif($proposal->status === 'rejected')
+                                                    Rejeitada
+                                                @else
+                                                    Pendente
+                                                @endif
                                             </span>
                                         </td>
                                         <td
                                             class="relative py-4 pl-3 pr-4 text-sm font-medium text-right whitespace-nowrap sm:pr-6">
-                                            <a href="#" class="text-indigo-600 hover:text-indigo-900">Ver</a>
+                                            <a href="{{ route('cliente.proposals.show', $proposal) }}"
+                                                class="text-indigo-600 hover:text-indigo-900">Ver</a>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -111,11 +149,21 @@
                 </div>
             @endif
 
-            <div class="flex justify-end mt-8">
+            <div class="flex justify-end mt-8 space-x-3">
                 <a href="{{ route('cliente.projects.index') }}"
                     class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                     Voltar para lista de projetos
                 </a>
+                @if ($project->status === 'completed' && $project->acceptedProposal && !$project->clientHasRatedFreelancer())
+                    <a href="{{ route('cliente.ratings.create_freelancer', $project) }}"
+                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-yellow-600 border border-transparent rounded-md shadow-sm hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
+                        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                        </svg>
+                        Avaliar Freelancer
+                    </a>
+                @endif
             </div>
         </div>
     </div>

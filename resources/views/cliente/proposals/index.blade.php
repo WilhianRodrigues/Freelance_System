@@ -3,23 +3,88 @@
 @section('title', 'Propostas Recebidas')
 
 @section('content')
-    <div class="max-w-4xl py-10 mx-auto">
-        <h1 class="mb-6 text-2xl font-bold">Propostas Recebidas</h1>
+    <div class="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <div class="mb-8">
+            <h1 class="text-2xl font-bold text-gray-900 md:text-3xl">Propostas Recebidas</h1>
+            <p class="mt-2 text-sm text-gray-600">Lista de todas as propostas recebidas para seus projetos</p>
+        </div>
 
-        @if ($propostas->isEmpty())
-            <p class="text-gray-600">Nenhuma proposta recebida ainda.</p>
-        @else
-            <div class="space-y-4">
-                @foreach ($propostas as $proposta)
-                    <div class="p-4 bg-white rounded shadow">
-                        <h2 class="text-lg font-semibold">{{ $proposta->projeto->title }}</h2>
-                        <p><strong>Freelancer:</strong> {{ $proposta->freelancer->user->name }}</p>
-                        <p><strong>Valor:</strong> R$ {{ number_format($proposta->valor, 2, ',', '.') }}</p>
-                        <p><strong>Prazo:</strong> {{ \Carbon\Carbon::parse($proposta->prazo)->format('d/m/Y') }}</p>
-                        <p><strong>Mensagem:</strong> {{ $proposta->mensagem }}</p>
+        <div class="overflow-hidden bg-white shadow sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6">
+                @if ($proposals->isEmpty())
+                    <p class="text-gray-500">Nenhuma proposta recebida ainda.</p>
+                @else
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+                                        Projeto</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+                                        Freelancer</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+                                        Valor</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+                                        Prazo</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+                                        Status</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+                                        Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @foreach ($proposals as $proposal)
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900">{{ $proposal->project->title }}
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">
+                                                {{ optional($proposal->freelancer)->name ?? 'Freelancer não disponível' }}
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">R$
+                                                {{ number_format($proposal->budget, 2, ',', '.') }}</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">{{ $proposal->deadline->format('d/m/Y') }}
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            @php
+                                                $statusClasses = [
+                                                    'pending' => 'bg-yellow-100 text-yellow-800',
+                                                    'accepted' => 'bg-green-100 text-green-800',
+                                                    'rejected' => 'bg-red-100 text-red-800',
+                                                ];
+                                            @endphp
+                                            <span
+                                                class="inline-flex px-2 text-xs font-semibold leading-5 rounded-full {{ $statusClasses[$proposal->status] ?? 'bg-gray-100 text-gray-800' }}">
+                                                {{ ucfirst($proposal->status) }}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm font-medium whitespace-nowrap">
+                                            <a href="{{ route('cliente.proposals.show', $proposal) }}"
+                                                class="text-indigo-600 hover:text-indigo-900">Ver</a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
-                @endforeach
+                    <div class="mt-4">
+                        {{ $proposals->links() }}
+                    </div>
+                @endif
             </div>
-        @endif
+        </div>
     </div>
 @endsection
