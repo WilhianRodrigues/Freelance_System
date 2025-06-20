@@ -41,10 +41,18 @@
                                         class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-indigo-500">
                                         Meus Projetos
                                     </a>
+                                    <a href="{{ route('cliente.dashboard') }}"
+                                        class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-indigo-500">
+                                        Dashboard
+                                    </a>
                                 @else
                                     <a href="{{ route('freelancer.projects.index') }}"
                                         class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-indigo-500">
                                         Projetos
+                                    </a>
+                                    <a href="{{ route('freelancer.dashboard') }}"
+                                        class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-indigo-500">
+                                        Dashboard
                                     </a>
                                 @endif
                             @endauth

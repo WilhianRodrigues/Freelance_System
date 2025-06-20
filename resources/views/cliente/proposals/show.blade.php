@@ -20,9 +20,14 @@
                             <div class="sm:grid sm:grid-cols-3 sm:gap-4">
                                 <dt class="text-sm font-medium text-gray-500">Freelancer</dt>
                                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                                    <div class="text-sm text-gray-900">
-                                        {{ optional($proposal->freelancer)->name ?? 'Freelancer não disponível' }}
-                                    </div>
+                                    @if ($proposal->freelancer)
+                                        <a href="{{ route('freelancer.public.profile', $proposal->freelancer->id) }}"
+                                            class="text-blue-600 hover:underline">
+                                            {{ $proposal->freelancer->name }}
+                                        </a>
+                                    @else
+                                        Freelancer não disponível
+                                    @endif
                                 </dd>
                             </div>
                             <div class="sm:grid sm:grid-cols-3 sm:gap-4">
@@ -46,10 +51,16 @@
                                             'accepted' => 'bg-green-100 text-green-800',
                                             'rejected' => 'bg-red-100 text-red-800',
                                         ];
+                                        $statusText = [
+                                            'pending' => 'Pendente',
+                                            'accepted' => 'Aceita',
+                                            'rejected' => 'Rejeitada',
+                                            'completed' => 'Concluída',
+                                        ];
                                     @endphp
                                     <span
                                         class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusClasses[$proposal->status] ?? 'bg-gray-100 text-gray-800' }}">
-                                        {{ ucfirst($proposal->status) }}
+                                        {{ $statusText[$proposal->status] ?? $proposal->status }}
                                     </span>
                                 </dd>
                             </div>
@@ -95,6 +106,25 @@
                         </div>
                     @endif
                 </div>
+                @if ($proposal->status === 'accepted' || $proposal->status === 'completed')
+                    {{-- Verifica se ainda não foi avaliado --}}
+                    @php
+                        $jaAvaliou = \App\Models\Rating::where('project_id', $proposal->project_id)
+                            ->where('rater_id', auth()->id())
+                            ->where('rated_id', $proposal->freelancer_id)
+                            ->where('type', 'client_to_freelancer')
+                            ->exists();
+                    @endphp
+
+                    @if (!$jaAvaliou)
+                        <a href="{{ route('cliente.ratings.create', $proposal->project_id) }}"
+                            class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Avaliar Freelancer
+                        </a>
+                    @else
+                        <span class="text-sm text-gray-600">Você já avaliou este freelancer.</span>
+                    @endif
+                @endif
             </div>
         </div>
     </div>

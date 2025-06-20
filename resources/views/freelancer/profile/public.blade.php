@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Meu Perfil - Freelancer')
+@section('title', 'Perfil - Freelancer')
 
 @section('content')
     <div class="container px-4 py-8 mx-auto">
@@ -10,13 +10,13 @@
             </div>
         @endif
 
-        <div class="flex items-center justify-between mb-6">
+        {{-- <div class="flex items-center justify-between mb-6">
             <h1 class="text-2xl font-bold">Meu Perfil</h1>
             <a href="{{ route('freelancer.profile.edit') }}"
                 class="px-4 py-2 text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700">
                 Editar Perfil
             </a>
-        </div>
+        </div> --}}
 
         <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
             <div class="md:col-span-2">

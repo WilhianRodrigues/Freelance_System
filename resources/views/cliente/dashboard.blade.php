@@ -12,14 +12,14 @@
                     <p class="mt-2 text-sm text-gray-600">Aqui você pode gerenciar todos os seus projetos e acompanhar suas
                         atividades.</p>
                 </div>
-                <a href="{{ route('cliente.profile.edit') }}"
+                {{-- <a href="{{ route('cliente.profile.edit') }}"
                     class="inline-flex items-center h-10 px-3 py-1 text-sm font-medium text-indigo-700 bg-indigo-100 rounded-md hover:bg-indigo-200">
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>
                     Editar Perfil
-                </a>
+                </a> --}}
             </div>
         </div>
 
@@ -72,10 +72,15 @@
             <!-- Card Meus Dados -->
             <div class="p-6 bg-white rounded-lg shadow">
                 <div class="flex items-center justify-between">
-                    <h3 class="text-lg font-medium text-gray-900">Meus Dados</h3>
-                    <a href="{{ route('cliente.profile.edit') }}"
+                    <h3 class="text-lg font-medium text-gray-900">Meu Perfil</h3>
+                    <a href="{{ route('cliente.profile.show') }}"
                         class="inline-flex items-center px-2 py-1 text-xs font-medium text-indigo-700 rounded bg-indigo-50 hover:bg-indigo-100">
-                        Editar
+                        <svg class="flex-shrink-0 w-5 h-5 mr-3 text-indigo-500" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        Perfil
                     </a>
                 </div>
                 <div class="mt-4 space-y-2">
@@ -126,10 +131,9 @@
                 </a>
                 <a href="{{ route('cliente.profile.edit') }}"
                     class="flex items-center p-3 text-sm font-medium text-indigo-600 rounded-md hover:bg-indigo-50">
-                    <svg class="flex-shrink-0 w-5 h-5 mr-3 text-indigo-500" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>
                     Editar Perfil Completo
                 </a>

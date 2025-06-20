@@ -5,19 +5,23 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Freelancer;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class FreelancerProfileController extends Controller
 {
     /**
      * Mostra o perfil do freelancer
      */
-    public function show()
+    public function show($id)
     {
-        $freelancer = Freelancer::where('user_id', Auth::id())
-                      ->with('user') // Carrega a relação com o usuário
-                      ->firstOrFail();
-        
-        return view('freelancer.profile.show', compact('freelancer'));
+        $user = User::with(['freelancer', 'ratingsReceived'])->findOrFail($id);
+
+        // Verifica se o usuário é realmente um freelancer
+        if (!$user->freelancer) {
+            abort(404, 'Freelancer não encontrado.');
+        }
+
+        return view('freelancer.profile.public', compact('user'));
     }
 
     /**

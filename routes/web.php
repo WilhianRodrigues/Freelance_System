@@ -7,8 +7,8 @@ use App\Http\Controllers\{
     FreelancerController,
     ProjectController,
     ProposalController,
-    FreelancerProfileController,
-    ProjectMessageController
+    ProjectMessageController,
+    MessageController
 };
 use App\Http\Controllers\RatingController;
 use App\Http\Middleware\FreelancerMiddleware;
@@ -43,6 +43,8 @@ Route::middleware(['auth'])->group(function () {
             ->name('cliente.ratings.store_freelancer');
         Route::get('/profile/edit', [ClienteController::class, 'editProfile'])->name('cliente.profile.edit');
         Route::put('/profile/update', [ClienteController::class, 'updateProfile'])->name('cliente.profile.update');
+        Route::get('/cliente/profile', [ClienteController::class, 'showProfile'])
+            ->name('cliente.profile.show');
 
         // Projetos do cliente (resource)
         Route::resource('cliente/projects', ProjectController::class)
@@ -90,6 +92,7 @@ Route::middleware(['auth'])->group(function () {
             ->name('freelancer.projects.messages');
         Route::post('/projects/{project}/messages', [ProjectMessageController::class, 'store'])
             ->name('projects.messages.store');
+        Route::post('/messages', [ProjectMessageController::class, 'store'])->name('messages.store');
         
         // Propostas
         Route::prefix('projects/{project}')->group(function() {
@@ -109,7 +112,7 @@ Route::middleware(['auth'])->group(function () {
         // Perfil
         Route::get('/profile/edit', [FreelancerController::class, 'editProfile'])->name('freelancer.profile.edit');
         Route::put('/profile/update', [FreelancerController::class, 'updateProfile'])->name('freelancer.profile.update');
-
+        Route::get('/freelancer/profile', [App\Http\Controllers\FreelancerController::class, 'show'])->name('freelancer.profile.show');
         //Route::prefix('profile')->group(function () {
             //Route::get('/', [FreelancerProfileController::class, 'show'])->name('freelancer.profile.show');
            // Route::get('/edit', [FreelancerProfileController::class, 'edit'])->name('freelancer.profile.edit');
@@ -125,4 +128,10 @@ Route::middleware(['auth'])->group(function () {
             'is_client' => $user->role === 'cliente'
         ]);
     })->middleware('auth');
+
+    Route::get('/freelancers/{id}', [App\Http\Controllers\FreelancerProfileController::class, 'show'])
+        ->name('freelancer.public.profile');
+    
+    Route::get('/cliente/projects/{project}/avaliar-freelancer', [RatingController::class, 'createFreelancerRating'])->name('cliente.ratings.create');
+
 });

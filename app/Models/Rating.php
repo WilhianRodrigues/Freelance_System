@@ -13,20 +13,20 @@ class Rating extends Model
     'score',
     'comment',
     'type'
-];
+    ];
 
-public function project()
-{
-    return $this->belongsTo(Project::class);
-}
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
+    }
 
-public function rater()
-{
-    return $this->belongsTo(User::class, 'rater_id');
-}
+    public function rater()
+    {
+        return $this->belongsTo(User::class, 'rater_id');
+    }
 
-public function rated()
-{
-    return $this->belongsTo(User::class, 'rated_id');
-}
+    public function rated()
+    {
+        return $this->belongsTo(User::class, 'rated_id');
+    }
 }

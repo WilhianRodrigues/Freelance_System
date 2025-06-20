@@ -101,4 +101,11 @@ class User extends Authenticatable
         return $this->ratingsReceived()->avg('score');
     }
 
+    public function completedProjectsCount()
+    {
+        return $this->proposals()
+            ->where('status', 'completed')
+            ->count();
+    }
+
 }

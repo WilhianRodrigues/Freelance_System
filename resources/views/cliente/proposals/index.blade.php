@@ -46,8 +46,18 @@
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900">
-                                                {{ optional($proposal->freelancer)->name ?? 'Freelancer não disponível' }}
+                                            <div class="sm:grid sm:grid-cols-3 sm:gap-4">
+                                                <dt class="text-sm font-medium text-gray-500">Freelancer</dt>
+                                                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                                    @if ($proposal->freelancer)
+                                                        <a href="{{ route('freelancer.public.profile', $proposal->freelancer->id) }}"
+                                                            class="text-blue-600 hover:underline">
+                                                            {{ $proposal->freelancer->name }}
+                                                        </a>
+                                                    @else
+                                                        Freelancer não disponível
+                                                    @endif
+                                                </dd>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
@@ -65,10 +75,16 @@
                                                     'accepted' => 'bg-green-100 text-green-800',
                                                     'rejected' => 'bg-red-100 text-red-800',
                                                 ];
+                                                $statusText = [
+                                                    'pending' => 'Pendente',
+                                                    'accepted' => 'Aceita',
+                                                    'rejected' => 'Rejeitada',
+                                                    'completed' => 'Concluída',
+                                                ];
                                             @endphp
                                             <span
                                                 class="inline-flex px-2 text-xs font-semibold leading-5 rounded-full {{ $statusClasses[$proposal->status] ?? 'bg-gray-100 text-gray-800' }}">
-                                                {{ ucfirst($proposal->status) }}
+                                                {{ $statusText[$proposal->status] ?? $proposal->status }}
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 text-sm font-medium whitespace-nowrap">

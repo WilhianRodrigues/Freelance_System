@@ -146,4 +146,9 @@ class Project extends Model
             ->where('type', 'freelancer_to_client')
             ->exists();
     }
+
+    public function freelancer()
+    {
+        return $this->belongsTo(User::class, 'freelancer_id');
+    }
 }

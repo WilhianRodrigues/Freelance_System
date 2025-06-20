@@ -7,7 +7,7 @@ use App\Models\Project;
 use App\Models\Proposal;
 use App\Models\Freelancer;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class FreelancerController extends Controller
 {
@@ -22,19 +22,19 @@ class FreelancerController extends Controller
      */
     public function index()
     {
-        $freelancer = Auth::user()->freelancer;
+        $user = Auth::user();
+        $freelancer = $user->freelancer;
         
-        // Estatísticas
-        $projectsInProgress = Proposal::where('freelancer_id', $freelancer->id)
-            ->where('status', 'in_progress')
-            ->count();
-        
-        $completedProjects = Proposal::where('freelancer_id', $freelancer->id)
-            ->where('status', 'completed')
-            ->count();
-        
-        $totalProposals = $freelancer->proposals()->count();
-        
+        // Carrega contagens para o dashboard
+        $user->loadCount([
+            'proposals as active_proposals_count' => function($query) {
+                $query->where('status', 'active');
+            },
+            'proposals as completed_proposals_count' => function($query) {
+                $query->where('status', 'completed');
+            }
+        ]);
+
         // Projetos disponíveis
         $availableProjects = Project::where('status', 'open')
             ->whereDoesntHave('proposals', function($query) use ($freelancer) {
@@ -44,23 +44,11 @@ class FreelancerController extends Controller
             ->take(5)
             ->get();
 
-        $user = Auth::user();
-        $user->loadCount([
-            'proposals as active_proposals_count' => function($query) {
-                $query->where('status', 'active');
-            }
-        ]);
-        
         return view('freelancer.dashboard', [
             'activeProposalsCount' => $user->active_proposals_count,
+            'completedProjectsCount' => $user->completed_proposals_count,
+            'availableProjects' => $availableProjects
         ]);
-
-        return view('freelancer.dashboard', compact(
-            'projectsInProgress',
-            'completedProjects',
-            'totalProposals',
-            'availableProjects'
-        ));
     }
 
     /**
@@ -84,70 +72,122 @@ class FreelancerController extends Controller
      */
     public function showProject(Project $project)
     {
-         // Verifica se o freelancer tem proposta aceita para este projeto
-        if (
-            !$project->acceptedProposal ||
-            $project->acceptedProposal->freelancer_id != Auth::user()->freelancer->id
-        ) {
+        // Verifica se o freelancer tem proposta aceita para este projeto
+        if (!$project->acceptedProposal || $project->acceptedProposal->freelancer_id != Auth::user()->freelancer->id) {
             abort(403, 'Acesso não autorizado');
         }
 
-            return view('freelancer.projects.show', [
-                'project' => $project,
-                'proposal' => $project->acceptedProposal
+        return view('freelancer.projects.show', [
+            'project' => $project,
+            'proposal' => $project->acceptedProposal
         ]);
-        return view('freelancer.projects.show', compact('project'));
     }
 
+    /**
+     * Mostrar mensagens do projeto
+     */
     public function showMessages(Project $project)
-        {
-            if (
-                !$project->acceptedProposal ||
-                $project->acceptedProposal->freelancer_id != Auth::user()->freelancer->id
-            ) {
-                abort(403, 'Acesso não autorizado');
-            }
-
-            return view('freelancer.projects.messages', [
-                'project' => $project,
-                'messages' => $project->messages()->latest()->get()
-            ]);
+    {
+        // Verifica se o freelancer tem proposta aceita para este projeto
+        $freelancer = Auth::user()->freelancer;
+        
+        if (!$project->acceptedProposal || $project->acceptedProposal->freelancer_id != $freelancer->id) {
+            abort(403, 'Acesso não autorizado');
         }
+
+        return view('freelancer.projects.messages', [
+            'project' => $project,
+            'messages' => $project->messages()->with('user')->latest()->get()
+        ]);
+    }
+
+    /**
+     * Mostrar perfil do freelancer
+     */
+    public function show()
+    {
+        $user = Auth::user();
+        return view('freelancer.profile.show', compact('user'));
+    }
+
+    public function showProfile()
+    {
+        $user = Auth::user();
+        $user->load('freelancer');
+        
+        return view('freelancer.profile.show', compact('user'));
+    }
 
     /**
      * Mostrar formulário de edição de perfil
      */
     public function editProfile()
     {
-        $user = Auth::user(); // Obter o usuário autenticado
-    
+        $user = Auth::user();
+        $freelancer = $user->freelancer; // Assumindo que há um relacionamento entre User e Freelancer
+        
         return view('freelancer.profile.edit', [
-            'user' => $user // Passar o usuário para a view
+            'user' => $user,
+            'freelancer' => $freelancer
         ]);
     }
-
     /**
      * Atualizar perfil do freelancer
      */
     public function updateProfile(Request $request)
     {
         $user = Auth::user();
-        
+        $freelancer = $user->freelancer;
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,'.$user->id,
-            'skills' => 'nullable|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'profession' => 'required|string|max:255',
+            'skills' => 'required|string|max:255',
             'bio' => 'nullable|string|max:1000',
             'hourly_rate' => 'nullable|numeric|min:0',
             'portfolio_url' => 'nullable|url|max:255'
         ]);
 
-        $user->update($validated);
-        
-        return redirect()->route('freelancer.profile.edit')
-            ->with('success', 'Perfil atualizado com sucesso!');
+        try {
+            // Atualiza os dados do usuário
+            $user->update([
+                'name' => $validated['name'],
+                'email' => $validated['email']
+            ]);
+
+            // Atualiza os dados do freelancer
+            if ($freelancer) {
+                $freelancer->update([
+                    'profession' => $validated['profession'],
+                    'skills' => $validated['skills'],
+                    'bio' => $validated['bio'],
+                    'hourly_rate' => $validated['hourly_rate'],
+                    'portfolio_url' => $validated['portfolio_url']
+                ]);
+            } else {
+                // Cria o registro de freelancer se não existir
+                Freelancer::create([
+                    'user_id' => $user->id,
+                    'profession' => $validated['profession'],
+                    'skills' => json_encode($validated['skills']),
+                    'bio' => $validated['bio'],
+                    'hourly_rate' => $validated['hourly_rate'],
+                    'portfolio_url' => $validated['portfolio_url']
+                ]);
+            }
+
+            return redirect()->route('freelancer.profile.show')
+                ->with('success', 'Perfil atualizado com sucesso!');
+        } catch (\Exception $e) {
+            Log::error('Erro ao atualizar perfil: ' . $e->getMessage());
+            return back()->with('error', 'Erro ao atualizar perfil. Tente novamente.');
+        }
     }
 
+    /**
+     * Listar propostas do freelancer
+     */
     public function proposals()
     {
         $proposals = Auth::user()->proposals()
@@ -157,7 +197,6 @@ class FreelancerController extends Controller
 
         return view('freelancer.proposals.index', compact('proposals'));
     }
-
 
     /**
      * Enviar proposta para um projeto
@@ -195,6 +234,4 @@ class FreelancerController extends Controller
         return redirect()->route('freelancer.projects.index')
                ->with('success', 'Proposta enviada com sucesso!');
     }
-
-    
 }

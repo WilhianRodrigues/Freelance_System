@@ -40,6 +40,14 @@
 
         <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
             <!-- Mensagens de status -->
+            <!-- Mensagens de sucesso (como "Cadastro realizado com sucesso!") -->
+            @if (session('success'))
+                <div class="p-4 mb-4 text-sm text-green-700 bg-green-100 rounded-lg">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            <!-- Mensagens de status (como reset de senha) -->
             @if (session('status'))
                 <div class="p-4 mb-4 text-sm text-green-700 bg-green-100 rounded-lg">
                     {{ session('status') }}
@@ -52,6 +60,7 @@
                     {{ $message }}
                 </div>
             @enderror
+
 
             <form class="space-y-6" method="POST" action="{{ route('login') }}">
                 @csrf

@@ -62,13 +62,14 @@
             <div class="p-6 bg-white rounded-lg shadow">
                 <div class="flex items-center justify-between">
                     <h3 class="text-lg font-medium text-gray-900">Meu Perfil</h3>
-                    <a href="{{ route('freelancer.profile.edit') }}"
+                    <a href="{{ route('freelancer.profile.show') }}"
                         class="inline-flex items-center px-3 py-1 text-sm font-medium text-indigo-700 bg-indigo-100 rounded-md hover:bg-indigo-200">
-                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="flex-shrink-0 w-5 h-5 mr-3 text-indigo-500" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
-                        Editar
+                        Perfil
                     </a>
                 </div>
                 <div class="mt-4 space-y-2">
@@ -111,22 +112,20 @@
                 </a>
                 <a href="{{ route('freelancer.profile.edit') }}"
                     class="flex items-center p-3 text-sm font-medium text-indigo-600 rounded-md hover:bg-indigo-50">
-                    <svg class="flex-shrink-0 w-5 h-5 mr-3 text-indigo-500" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>
-                    Editar Perfil Completo
-                </a>
-                <!--<a href="{{-- {{ route('freelancer.projects.create') }} --}}"
-                                class="flex items-center p-3 text-sm font-medium text-indigo-600 rounded-md hover:bg-indigo-50">
-                                <svg class="flex-shrink-0 w-5 h-5 mr-3 text-indigo-500" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                </svg>
-                                Criar Novo Projeto
-                            </a>-->
+                    Editar Perfil
+                    <!--<a href="{{-- {{ route('freelancer.projects.create') }} --}}"
+                                                class="flex items-center p-3 text-sm font-medium text-indigo-600 rounded-md hover:bg-indigo-50">
+                                                <svg class="flex-shrink-0 w-5 h-5 mr-3 text-indigo-500" fill="none" viewBox="0 0 24 24"
+                                                    stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                                </svg>
+                                                Criar Novo Projeto
+                                            </a>-->
             </div>
         </div>
 

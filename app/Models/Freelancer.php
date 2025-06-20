@@ -20,15 +20,23 @@ class Freelancer extends Model
         return $this->belongsToMany(Project::class, 'proposals');
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+
     // Se necessário, defina a tabela explicitamente
     protected $table = 'freelancers';
 
     // Defina os campos que podem ser preenchidos (mass assignment)
     protected $fillable = [
+        'user_id',
         'name',
         'email',
         'password',
         'role',
+        'profession',
         'skills',
         'bio',
         'hourly_rate',

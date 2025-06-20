@@ -28,13 +28,20 @@
                 <div class="mb-4">
                     <label class="block mb-2 text-gray-700" for="company_name">Empresa</label>
                     <input type="text" name="company_name" id="company_name"
-                        value="{{ old('company_name', $user->company_name) }}" class="w-full px-4 py-2 border rounded-lg">
+                        value="{{ old('company_name', $user->client->company_name ?? '') }}"
+                        class="w-full px-4 py-2 border rounded-lg">
+                    @error('company_name')
+                        <span class="text-sm text-red-600">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="mb-4">
                     <label class="block mb-2 text-gray-700" for="phone">Telefone</label>
-                    <input type="text" name="phone" id="phone" value="{{ old('phone', $user->phone) }}"
-                        class="w-full px-4 py-2 border rounded-lg">
+                    <input type="text" name="phone" id="phone"
+                        value="{{ old('phone', $user->client->phone ?? '') }}" class="w-full px-4 py-2 border rounded-lg">
+                    @error('phone')
+                        <span class="text-sm text-red-600">{{ $message }}</span>
+                    @enderror
                 </div>
             </div>
 
@@ -52,7 +59,11 @@
                 @endif
             </div>
 
-            <div class="mt-6">
+            <div class="flex items-center justify-between mt-6">
+                <a href="{{ route('cliente.profile.show') }}"
+                    class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                    Voltar
+                </a>
                 <button type="submit" class="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700">
                     Atualizar Perfil
                 </button>

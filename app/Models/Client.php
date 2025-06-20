@@ -19,14 +19,12 @@ class Client extends Model
     protected $table = 'clients';
 
     // Defina os campos que podem ser preenchidos (mass assignment)
-    protected $fillable = ['user_id',
-        'name',
-        'email',
-        'password',
-        'company_name',
-        'phone',
-        // outros campos que você precisar
-    ];
+   protected $fillable = ['user_id', 'company_name', 'phone'];
+
+    public function user()
+        {
+            return $this->belongsTo(User::class);
+        }
 
     // Se a tabela tiver timestamps
     public $timestamps = false;
